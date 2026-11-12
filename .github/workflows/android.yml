@@ -27,6 +27,25 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      # Расшифровка Keystore перед подписью
+      - name: Decode Keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
+
+      # Создание key.properties из секретов
+      - name: Create key.properties
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          echo "storePassword=$KEYSTORE_PASSWORD" > android/key.properties
+          echo "keyPassword=$KEY_PASSWORD" >> android/key.properties
+          echo "keyAlias=$KEY_ALIAS" >> android/key.properties
+          echo "storeFile=upload-keystore.jks" >> android/key.properties
+
       - name: Assemble Release APK
         run: flutter build apk --release
 
