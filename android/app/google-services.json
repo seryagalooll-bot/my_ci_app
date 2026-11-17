@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "466449423565",
+    "project_id": "my-ci-app-43986",
+    "storage_bucket": "my-ci-app-43986.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:466449423565:android:11dd105b7d14c86541dd84",
+        "android_client_info": {
+          "package_name": "com.example.my_ci_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXE4-bfiU11LU50Mpp8WW5JO7JLDjfOLE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

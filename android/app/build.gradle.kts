@@ -1,13 +1,23 @@
 import java.util.Properties
 import java.io.FileInputStream
 
+// Функция для подсчета коммитов (Часть 1)
+fun getCommitCount(): Int {
+    return try {
+        val process = ProcessBuilder("git", "rev-list", "--count", "HEAD")
+            .redirectErrorStream(true).start()
+        process.inputStream.bufferedReader().readText().trim().toInt()
+    } catch (e: Exception) {
+        1 // Заглушка, если git не найден
+    }
+}
+
 plugins {
     id("com.android.application")
     id("dev.flutter.flutter-gradle-plugin")
-    id("com.google.gms.google-services") // Плагин для Firebase
+    id("com.google.gms.google-services")
 }
 
-// Загружаем key.properties
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
@@ -16,7 +26,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.example.my_ci_app"
-    compileSdk = 34 // Актуальный компилятор
+    compileSdk = 34
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -26,10 +36,12 @@ android {
 
     defaultConfig {
         applicationId = "com.example.my_ci_app"
-        minSdk = 24 // Требование Google Play
-        targetSdk = 33 // Требование Google Play
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        minSdk = 24
+        targetSdk = 33
+
+        // Автоматическое версионирование
+        versionCode = getCommitCount()
+        versionName = "2.1.${getCommitCount()}"
     }
 
     signingConfigs {
@@ -50,7 +62,7 @@ android {
             } else {
                 signingConfigs.getByName("debug")
             }
-            isMinifyEnabled = true // Включаем R8 (очистка кода и удаление логов)
+            isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }

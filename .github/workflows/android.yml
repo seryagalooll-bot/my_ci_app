@@ -1,9 +1,9 @@
-name: Android Build & Distribute (AAB)
+name: Android Build & Distribute (APK)
 
 on:
   push:
     tags:
-      - 'v*' # Запуск при пуше тега, начинающегося на v (например, v1.0.0)
+      - 'v*'
 
 jobs:
   build:
@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Обязательно для работы getCommitCount()!
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -28,13 +30,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # Создаем файл google-services.json из секрета
       - name: Create google-services.json
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: echo "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
 
-      # --- ДЕКОДИРОВАНИЕ КЛЮЧЕЙ ---
       - name: Decode Keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -52,18 +52,15 @@ jobs:
           echo "keyAlias=$KEY_ALIAS" >> android/key.properties
           echo "storeFile=upload-keystore.jks" >> android/key.properties
 
-      # --- СБОРКА AAB ---
       - name: Assemble Release APK
         run: flutter build apk --release
 
-      # --- ЗАГРУЗКА АРТЕФАКТА ---
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-aab
+          name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
 
-      # --- ОТПРАВКА В FIREBASE ---
       - name: Create Firebase Service Account File
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
@@ -76,4 +73,4 @@ jobs:
           serviceCredentialsFile: android/firebase_service_account.json
           groups: qa-team, beta-testers
           file: build/app/outputs/flutter-apk/app-release.apk
-
+          releaseNotes: "Автоматический релиз ${{ github.ref_name }}. Подробности в CHANGELOG.md"
