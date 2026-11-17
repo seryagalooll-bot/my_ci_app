@@ -76,4 +76,3 @@ jobs:
           serviceCredentialsFile: android/firebase_service_account.json
           groups: qa-team, beta-testers
           file: build/app/outputs/bundle/release/app-release.aab
-          androidArtifactType: "AAB"
