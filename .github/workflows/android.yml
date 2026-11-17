@@ -1,8 +1,9 @@
-name: Android Build
+name: Android Build & Distribute (AAB)
 
 on:
   push:
-    branches: [ main ]
+    tags:
+      - 'v*' # Запуск при пуше тега, начинающегося на v (например, v1.0.0)
 
 jobs:
   build:
@@ -27,14 +28,13 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # Расшифровка Keystore перед подписью
+      # --- ДЕКОДИРОВАНИЕ КЛЮЧЕЙ ---
       - name: Decode Keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
           echo "$KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
 
-      # Создание key.properties из секретов
       - name: Create key.properties
         env:
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -46,26 +46,28 @@ jobs:
           echo "keyAlias=$KEY_ALIAS" >> android/key.properties
           echo "storeFile=upload-keystore.jks" >> android/key.properties
 
-      - name: Assemble Release APK
-        run: flutter build apk --release
+      # --- СБОРКА AAB ---
+      - name: Assemble Release Bundle
+        run: flutter build appbundle --release
 
+      # --- ЗАГРУЗКА АРТЕФАКТА ---
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: app-release-aab
+          path: build/app/outputs/bundle/release/app-release.aab
 
-      # Создаем файл сервисного аккаунта Firebase из секрета
+      # --- ОТПРАВКА В FIREBASE ---
       - name: Create Firebase Service Account File
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: echo "$FIREBASE_SERVICE_ACCOUNT" > android/firebase_service_account.json
 
-      # Отправляем APK в Firebase App Distribution
       - name: Upload to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1.7.1
         with:
           appId: ${{ secrets.FIREBASE_APP_ID }}
           serviceCredentialsFile: android/firebase_service_account.json
           groups: qa-team, beta-testers
-          file: build/app/outputs/flutter-apk/app-release.apk
+          file: build/app/outputs/bundle/release/app-release.aab
+          androidArtifactType: "AAB"

@@ -4,6 +4,7 @@ import java.io.FileInputStream
 plugins {
     id("com.android.application")
     id("dev.flutter.flutter-gradle-plugin")
+    id("com.google.gms.google-services") // Плагин для Firebase
 }
 
 // Загружаем key.properties
@@ -15,7 +16,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.example.my_ci_app"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 34 // Актуальный компилятор
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -25,8 +26,8 @@ android {
 
     defaultConfig {
         applicationId = "com.example.my_ci_app"
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        minSdk = 24 // Требование Google Play
+        targetSdk = 33 // Требование Google Play
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
@@ -49,6 +50,8 @@ android {
             } else {
                 signingConfigs.getByName("debug")
             }
+            isMinifyEnabled = true // Включаем R8 (очистка кода и удаление логов)
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 }
