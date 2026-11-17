@@ -76,4 +76,4 @@ jobs:
           serviceCredentialsFile: android/firebase_service_account.json
           groups: qa-team, beta-testers
           file: build/app/outputs/flutter-apk/app-release.apk
-          androidArtifactType: "APK"
+
