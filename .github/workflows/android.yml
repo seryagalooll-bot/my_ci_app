@@ -53,15 +53,15 @@ jobs:
           echo "storeFile=upload-keystore.jks" >> android/key.properties
 
       # --- СБОРКА AAB ---
-      - name: Assemble Release Bundle
-        run: flutter build appbundle --release
+      - name: Assemble Release APK
+        run: flutter build apk --release
 
       # --- ЗАГРУЗКА АРТЕФАКТА ---
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-release-aab
-          path: build/app/outputs/bundle/release/app-release.aab
+          path: build/app/outputs/flutter-apk/app-release.apk
 
       # --- ОТПРАВКА В FIREBASE ---
       - name: Create Firebase Service Account File
@@ -75,4 +75,5 @@ jobs:
           appId: ${{ secrets.FIREBASE_APP_ID }}
           serviceCredentialsFile: android/firebase_service_account.json
           groups: qa-team, beta-testers
-          file: build/app/outputs/bundle/release/app-release.aab
+          file: build/app/outputs/flutter-apk/app-release.apk
+          androidArtifactType: "APK"
