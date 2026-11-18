@@ -61,7 +61,6 @@ class _DashboardPageState extends State<DashboardPage> {
       minimumFetchInterval: const Duration(seconds: 0),
     ));
 
-    // Дефолтные значения (если в Firebase пусто)
     await _remoteConfig.setDefaults(const {
       "welcome_text": "Привет из Remote Config!",
       "show_new_feature": false,
@@ -98,11 +97,11 @@ class _DashboardPageState extends State<DashboardPage> {
           )
         ],
       ),
+      // ИСПРАВЛЕНИЕ ЗДЕСЬ: добавили bottom: 90.0
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0, bottom: 90.0),
         child: Column(
           children: [
-            // Карточка с текстом из Firebase
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -125,7 +124,6 @@ class _DashboardPageState extends State<DashboardPage> {
 
             const SizedBox(height: 20),
 
-            // Счетчик
             Expanded(
               child: Center(
                 child: Text(
@@ -135,7 +133,6 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
 
-            // Feature Toggle (Секретная фича)
             if (_showNewFeature)
               Container(
                 margin: const EdgeInsets.only(bottom: 20),
@@ -155,14 +152,12 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
               ),
 
-            // Кнопка сломать приложение (Crashlytics)
             OutlinedButton.icon(
               onPressed: () => FirebaseCrashlytics.instance.crash(),
               icon: const Icon(Icons.bug_report, color: Colors.red),
               label: const Text('Сломать приложение', style: TextStyle(color: Colors.red)),
               style: OutlinedButton.styleFrom(side: const BorderSide(color: Colors.red)),
             ),
-            const SizedBox(height: 10),
           ],
         ),
       ),
